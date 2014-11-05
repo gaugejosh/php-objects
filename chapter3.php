@@ -1,17 +1,41 @@
 <?php
 
 class ShopProduct {
-	protected $title;
-	protected $producerMainName;
-	protected $producerFirstName;
+	private $title;
+	private $producerMainName;
+	private $producerFirstName;
 	protected $price;
-	protected $discount = 0;
+	private $discount = 0;
 
 	public function __construct( $title, $firstName, $mainName, $price ) {
 		$this->title             = $title;
 		$this->producerFirstName = $firstName;
 		$this->producerMainName  = $mainName;
 		$this->price             = $price;
+	}
+
+	public function getProducerFirstName() {
+		return $this->producerFirstName;
+	}
+
+	public function getProducerMainName() {
+		return $this->producerMainName;
+	}
+
+	public function setDiscount( $num ) {
+		$this->discount = $num;
+	}
+
+	public function getDiscount() {
+		return $this->discount;
+	}
+
+	public function getTitle() {
+		return $this->title;
+	}
+
+	public function getPrice() {
+		return ( $this->price - $this->discount );
 	}
 
 	public function getProducer() {
@@ -24,19 +48,22 @@ class ShopProduct {
 
 		return $base;
 	}
-
-	public function setDiscount( $num ) {
-		$this->discount = $num;
-	}
-
-	public function getPrice() {
-		return ( $this->price - $this->discount );
-	}
 }
 
 class ShopProductWriter {
-	public function write( ShopProduct $shopProduct ) {
-		$str = $shopProduct->title . ": " . $shopProduct->getProducer() . " (" . $shopProduct->getPrice() . ")";
+	private $products = array();
+
+	public function addProduct( ShopProduct $shopProduct ) {
+		$this->products[] = $shopProduct;
+	}
+
+	public function write() {
+		$str = "";
+		foreach ( $this->products as $shopProduct ) {
+			$str .= "{$shopProduct->getTitle()}: ";
+			$str .= $shopProduct->getProducer();
+			$str .= " ({$shopProduct->getPrice()})\n";
+		}
 
 		return $str;
 	}
@@ -82,10 +109,15 @@ class BookProduct extends ShopProduct {
 	}
 }
 
-$product1 = new ShopProduct( 'My Antonia', 'Willa', 'Cather', 5.99 );
-$product2 = new CdProduct( "Room For Squares", "John", "Mayer", 9.99, 54 );
-$product3 = new BookProduct( "The DaVinci Code", "Dan", "Brown", 49.99, 1034 );
+$product1     = new ShopProduct( 'My Antonia', 'Willa', 'Cather', 5.99 );
+$product2     = new CdProduct( "Room For Squares", "John", "Mayer", 9.99, 54 );
+$product3     = new BookProduct( "The DaVinci Code", "Dan", "Brown", 49.99, 1034 );
+$write        = new ShopProductWriter( $product1 );
 
 echo $product1->getSummaryLine() . "<br>";
 echo $product2->getSummaryLine() . "<br>";
 echo $product3->getSummaryLine() . "<br>";
+$write->addProduct($product1);
+$write->addProduct($product2);
+$write->addProduct($product3);
+echo $write->write();
